@@ -487,6 +487,11 @@ A następnie "wdrożyć" sieć pod'ów do klastra.
 ```shell
 kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.25.0/manifests/tigera-operator.yaml
 curl https://raw.githubusercontent.com/projectcalico/calico/v3.25.0/manifests/custom-resources.yaml -O
+```
+
+W tym pobranym pliku trzeba zmienić adres IP w spec.calicoNetwork.ipPools.cidr na ten, który daliśmy przy inicjacji klastra
+
+```shell
 kubectl create -f custom-resources.yaml
 ```
 
