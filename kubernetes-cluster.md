@@ -157,7 +157,7 @@ Warningiem się nie przejmujemy.
 Wykonujemy poniższe polecenie:
 
 ```shell
-sudo sed -i '/ swap / s/^
+sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
 ```
 
 Otwieramy plik `/etc/fstab` i zakomentowujemy za pomocą # linijkę ze `swap`
