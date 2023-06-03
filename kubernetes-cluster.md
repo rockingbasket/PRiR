@@ -30,7 +30,7 @@ Na Ubuntu natomiast sprawa jest prostsza.
 
 Plik, w którym znajduje się konfiguracja sieci jest w katalogu:
 
-```bash
+```shell
 /etc/netplan/
 ```
 
@@ -88,7 +88,7 @@ Nameservers to są adresy DNS, to możecie skopiować żywcem i powinno zadział
 
 Po zedytowaniu tego wszystkiego w pliku yaml i zapisaniu go należy wykonać jedno, w chuj ważne polecenie, żeby to wszystko zadziałało.
 
-```bash
+```shell
 sudo netplan apply
 ```
 
@@ -120,11 +120,11 @@ W tym miejscu warto wyłączyć maszynę i zrobić jej migawkę - w razie gdyby 
 
 Wykonujemy polecenia:
 
-`sudo apt -y install curl apt-transport-https gnupg`
-
-`curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -`
-
-`echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list`
+```shell
+sudo apt -y install curl apt-transport-https gnupg
+curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+```
 
 Powyższymi poleceniami dodaliśmy sobie do systemu repozytorium Kubernetesa, aby móc go zainstalować.
 
@@ -134,13 +134,17 @@ Jeśli pojawią się pomarańczowe warningi, można je zignorować.
 
 Następnie instalujemy paczki potrzebne do działania Kubernetesa:
 
-`sudo apt -y install git wget kubelet kubeadm kubectl`
+```shell
+sudo apt -y install git wget kubelet kubeadm kubectl
+```
 
 Nastepnie ustawiamy utrzymywanie wersji paczek Kubernetesa, aby nam się ne aktualizowały: `sudo apt-mark hold kubelet kubeadm kubectl`
 
 Aby sprawdzić czy na pewno dobrze zostały zainstalowane wszystkie paczki możemy wykonać polecenie:
 
-`kubectl version --client && kubeadm version`,
+```shell
+kubectl version --client && kubeadm version
+```
 
 które powinno wyświetlić nam coś takiego:
 
@@ -152,7 +156,9 @@ Warningiem się nie przejmujemy.
 
 Wykonujemy poniższe polecenie:
 
-`sudo sed -i '/ swap / s/^`
+```shell
+sudo sed -i '/ swap / s/^
+```
 
 Otwieramy plik `/etc/fstab` i zakomentowujemy za pomocą # linijkę ze `swap`
 
@@ -162,19 +168,20 @@ Jeśli tej linijki nie ma, to jej nie ma i tyle - nie ma swapa.
 
 Ale i tak dla pewności pozostałe polecenia można wykonać:
 
-`sudo swapoff -a`
+```shell
+sudo swapoff -a
+sudo mount -a
+free -h
+```
+To ostatnie polecenie wyświetla informacje o pamięci RAM, w tym o swapie
 
-`sudo mount -a`
-
-`free -h` - to polecenie wyświetla informacje o pamięci RAM, w tym o swapie
-
-```bash
+```shell
 # Enable kernel modules / włącz moduły jądra (kernela)
 sudo modprobe overlay
 sudo modprobe br_netfilter
 ```
 
-```bash
+```shell
 # Ustawienie bridge dla kontenerów
 sudo tee /etc/sysctl.d/kubernetes.conf<<EOF
 net.bridge.bridge-nf-call-ip6tables = 1
@@ -183,7 +190,7 @@ net.ipv4.ip_forward = 1
 EOF
 ```
 
-```bash
+```shell
 # Przeładuj sysctl
 sudo sysctl --system
 ```
@@ -194,21 +201,21 @@ Swap wyłączony, ustawiony też bridge dla kontenerów.
 
 Na początek doinstalowujemy brakujące paczki:
 
-```bash
+```shell
 sudo apt install -y gnupg2 software-properties-common
 ```
 
 Pobieramy klucz GPG dla repozytorium Dockera:
 
-```bash
+```shell
 curl -fsSL https://download.docker.com/linux/$(lsb_release -is | tr '[:upper:]' '[:lower:]')/gpg | sudo apt-key add -
 ```
 
-To co jest w `$()` zwraca dystrybucję Linuxa - "debian" lub "ubuntu" w naszym przypadku.
+To co jest w `$()` zwraca nazwę dystrybucji Linuxa - "debian" lub "ubuntu" w naszym przypadku.
 
 Następnie dodajemy repzytorium Dockera:
 
-```bash
+```shell
 sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/$(lsb_release -is | tr '[:upper:]' '[:lower:]') $(lsb_release -cs) stable"
 ```
 
@@ -216,19 +223,19 @@ Następnie znowu trzeba zrobić `sudo apt update`
 
 I instalujemy paczki dla Dockera:
 
-```bash
+```shell
 sudo apt install -y containerd.io docker-ce docker-ce-cli
 ```
 
 Teraz musimy utworzyć jeden katalog:
 
-```bash
+```shell
 sudo mkdir -p /etc/systemd/system/docker.service.d
 ```
 
 Tworzymy plik demona dla Dockera:
 
-```bash
+```shell
 sudo tee /etc/docker/daemon.json <<EOF
 {
   "exec-opts": ["native.cgroupdriver=systemd"],
@@ -243,7 +250,7 @@ EOF
 
 I uruchamiamy i włączamy usługi:
 
-```bash
+```shell
 sudo systemctl daemon-reload
 sudo systemctl restart docker
 sudo systemctl enable docker
@@ -251,7 +258,7 @@ sudo systemctl enable docker
 
 Sprawdzamy czy Docker działa:
 
-```bash
+```shell
 systemctl status docker
 ```
 
@@ -263,7 +270,7 @@ Do działania Kubernetesa na Dockerze musimy zainstalować Mirantis cri-dockerd.
 
 Najpierw sprawdzamy jaka jest najnowsza wersja i zapisujemy tą informację do zmiennej:
 
-```bash
+```shell
 VER=$(curl -s https://api.github.com/repos/Mirantis/cri-dockerd/releases/latest|grep tag_name | cut -d '"' -f 4|sed 's/v//g')
 ```
 
@@ -271,7 +278,7 @@ A potem możemy wydrukować ten numer wersji: `echo $VER`
 
 I pobieramy tą wersję cri-dockerd
 
-```bash
+```shell
 ### For Intel 64-bit CPU ###
 wget https://github.com/Mirantis/cri-dockerd/releases/download/v${VER}/cri-dockerd-${VER}.amd64.tgz
 tar xvf cri-dockerd-${VER}.amd64.tgz
@@ -289,25 +296,25 @@ Te dwie linijki wykonujemy najlepiej osobno, najpierw pierwsza, potem druga.
 
 Następnie przenosimy paczkę cri-dockerd:
 
-```bash
+```shell
 sudo mv cri-dockerd/cri-dockerd /usr/local/bin/
 ```
 
 I sprawdzamy czy poprawnie przenieśliśmy poprzez uruchomienie polecenia sprawdzania wersji cri-dockerd:
 
-```bash
+```shell
 cri-dockerd --version
 ```
 
 Powinno się wyświetlić:
 
-```bash
+```shell
 cri-dockerd 0.3.2 (23513f4c)
 ```
 
 Kolejnym krokiem jest konfiguracja socket'u i service'u cri-dockerd. Wykonujemy te cztery linijki kodu jedna po drugiej:
 
-```bash
+```shell
 wget https://raw.githubusercontent.com/Mirantis/cri-dockerd/master/packaging/systemd/cri-docker.service
 wget https://raw.githubusercontent.com/Mirantis/cri-dockerd/master/packaging/systemd/cri-docker.socket
 sudo mv cri-docker.socket cri-docker.service /etc/systemd/system/
@@ -316,7 +323,7 @@ sudo sed -i -e 's,/usr/bin/cri-dockerd,/usr/local/bin/cri-dockerd,' /etc/systemd
 
 I uruchamiamy socket i service cri-dockerd, aby Kubernetes mógł korzystać z Dockera jako usługi konteryzacji (wykonujemy po kolei linijki kodu):
 
-```bash
+```shell
 sudo systemctl daemon-reload
 sudo systemctl enable cri-docker.service
 sudo systemctl enable --now cri-docker.socket
@@ -324,7 +331,7 @@ sudo systemctl enable --now cri-docker.socket
 
 I sprawdzamy, czy socket działa:
 
-```bash
+```shell
 systemctl status cri-docker.socket
 ```
 
@@ -386,7 +393,7 @@ Zobaczcie, że jestem na `node1`, a nazwę mam `master`. Chcę, żeby było `nod
 
 Wydaję polecenie:
 
-```bash
+```shell
 sudo hostnamectl set-hostname node1
 ```
 
@@ -394,7 +401,7 @@ Na razie po wykonaniu polecenia nie widać zmiany. Dopiero gdy się wylogujemy, 
 
 Ale musimy zrobić jeszcze jedno: zmienić nazwę hosta na nową w pliku `/etc/hosts`, aby nazwa `node1` była tłumaczona na adres `localhost`:
 
-```bash
+```shell
 sudo nano /etc/hosts
 ```
 
@@ -420,32 +427,32 @@ Możemy się w końcu za to zabrać.
 
 Sprawdzamy czy moduł br_netfilter jest załadowany
 
-```bash
+```shell
 lsmod | grep br_netfilter
 ```
 
 Na wyjściu powinniśmy zobaczyć coś takiego:
 
-```bash
+```shell
 br_netfilter           22256  0 
 bridge                151336  2 br_netfilter,ebtable_broute
 ```
 
 Włączamy usługę kubelet
 
-```bash
+```shell
 sudo systemctl enable kubelet
 ```
 
 Umieszczamy obrazy kontenerów:
 
-```bash
+```shell
 sudo kubeadm config images pull --cri-socket unix:///run/cri-dockerd.sock
 ```
 
 I inicjujemy klaster Kubernetesa:
 
-```
+```shell
 sudo kubeadm init  --cri-socket unix:///run/cri-dockerd.sock  --pod-network-cidr=172.16.0.0/16
 ```
 
@@ -453,7 +460,7 @@ Adres IP w powyższej komendzie należy zmienić, jeśli ten, który tu jest, je
 
 Jeśli macie mniej niż 2 CPU i 2GB RAMu przydzielone do maszyny, to trzeba zmodyfikować polecenie, dodając jeszcze jedną opcję:
 
-```
+```shell
 sudo kubeadm init  --cri-socket unix:///run/cri-dockerd.sock  --pod-network-cidr=172.16.0.0/16 --ignore-preflight-errors=NumCPU,Mem
 ```
 
@@ -463,13 +470,13 @@ Jeśli wszystko poszło dobrze, powinniśmy zobaczyć coś takiego:
 
 Możemy skopiować komendę dołączenia node'a do klastra, która się wyświetliła na samym końcu, albo w każdej chwili odpalić na masterze komendę
 
-```bash
+```shell
 kubeadm token create --print-join-command
 ```
 
 Teraz jak zostało napisane, musimy wykonać trzy polecenia jako zwykły użytkownik systemu (czyli nie root):
 
-```bash
+```shell
 mkdir -p $HOME/.kube
 sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
 sudo chown $(id -u):$(id -g) $HOME/.kube/config
@@ -477,7 +484,7 @@ sudo chown $(id -u):$(id -g) $HOME/.kube/config
 
 A następnie "wdrożyć" sieć pod'ów do klastra.
 
-```bash
+```shell
 kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.25.0/manifests/tigera-operator.yaml
 curl https://raw.githubusercontent.com/projectcalico/calico/v3.25.0/manifests/custom-resources.yaml -O
 kubectl create -f custom-resources.yaml
@@ -485,19 +492,19 @@ kubectl create -f custom-resources.yaml
 
 Możemy sprawdzić czy master node pracuje:
 
-```bash
+```shell
 kubectl get nodes -o wide
 ```
 
 Teraz możemy dołączyć kolejne node'y do klastra poleceniem, które wydrukowało nam się na końcu inicjacji klastra, albo, które wyświetliliśmy sobie jeszcze raz na masterze poleceniem:
 
-```bash
+```shell
 kubeadm token create --print-join-command
 ```
 
 To polecenie wygląda podobnie do poniższego:
 
-```bash
+```shell
 kubeadm join 192.168.100.25:6443 --token qbateg.5uffinrwny1ghn3r --discovery-token-ca-cert-hash sha256:4d1f5dc4e338ff4667190d35a770e0b6f85b931e8c9133695221d98f7bd421ad
 ```
 
@@ -505,7 +512,7 @@ Należy pamiętać aby wykonać je jako root, czyli trzeba napisać `sudo` na po
 
 Polecenie wynikowe wygląda mniej więcej tak:
 
-```bash
+```shell
 sudo kubeadm join 192.168.100.25:6443 --token qbateg.5uffinrwny1ghn3r --discovery-token-ca-cert-hash sha256:4d1f5dc4e338ff4667190d35a770e0b6f85b931e8c9133695221d98f7bd421ad --cri-socket unix:///run/cri-dockerd.sock
 ```
 
@@ -515,7 +522,7 @@ Jeśli uda się dołączyć node do klastra, to zobaczymy na ekranie taki wynik:
 
 I wówczas na masterze możemy sprawdzić, czy ten node jest widoczny:
 
-```bash
+```shell
 kubectl get nodes
 ```
 
