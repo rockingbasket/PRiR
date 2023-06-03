@@ -16,7 +16,7 @@ Ja mam ustawiony w VirtualBoxie bridge w ustawieniach sieci, a mój router to Mi
 
 ![1685747739013](image/kubernetes-cluster/1685747739013.png)
 
-##### Ustawienie statycznego IP na Debianie
+#### Ustawienie statycznego IP na Debianie
 
 Ja właśnie tak jak napisałem wyżej zrobię u siebie, a wam podrzucę link do poradnika jak ustawić statyczny IP bezpośrednio na maszynie z Debianem\.
 
@@ -24,7 +24,7 @@ Ja właśnie tak jak napisałem wyżej zrobię u siebie, a wam podrzucę link do
 
 Powyższy poradnik jest dla wersji 11 Debiana, ale na starszych powinien również działać (wiele się nie zmieniło w tej kwestii).
 
-##### Ustawienie statycznego IP na Ubuntu
+#### Ustawienie statycznego IP na Ubuntu
 
 Na Ubuntu natomiast sprawa jest prostsza.
 
