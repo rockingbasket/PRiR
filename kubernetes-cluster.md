@@ -285,7 +285,7 @@ tar xvf cri-dockerd-${VER}.amd64.tgz
 
 ### For ARM 64-bit CPU ###
 wget https://github.com/Mirantis/cri-dockerd/releases/download/v${VER}/cri-dockerd-${VER}.arm64.tgz
-cri-dockerd-${VER}.arm64.tgz
+tar xvf cri-dockerd-${VER}.arm64.tgz
 ```
 
 Należy wybrać odpowiednie dwie linijki kodu w zależności od tego na jakim procesorze działa nasza maszyna: jeśli Intel lub AMD 64-bitowy, to dwie pierwsze linijki
