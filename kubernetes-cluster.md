@@ -474,7 +474,7 @@ Możemy skopiować komendę dołączenia node'a do klastra, która się wyświet
 kubeadm token create --print-join-command
 ```
 
-Teraz jak zostało napisane, musimy wykonać trzy polecenia jako zwykły użytkownik systemu (czyli nie root):
+Teraz jak zostało napisane, musimy wykonać trzy polecenia jako ***ZWYKŁY UŻYTKOWNIK SYSTEMU (CZYLI NIE ROOT)***:
 
 ```shell
 mkdir -p $HOME/.kube
