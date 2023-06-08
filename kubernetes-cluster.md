@@ -2,7 +2,7 @@
 
 ## Co będzie w tym poradniku?
 
-W tym poradniku postaram się jak dla debila przygotować instrukcje instalacji Kubernetesa na Ubuntu lub Debianie w zasadniczo dowolnej wersji, tak aby na pewno działało, wytłumaczyć co które polecenie oznacza oraz inicjacji klastra..
+W tym poradniku postaram się jak dla debila przygotować instrukcje instalacji Kubernetesa na Ubuntu lub Debianie w zasadniczo dowolnej wersji, tak aby na pewno działało, wytłumaczyć co które polecenie oznacza oraz inicjacji klastra.
 
 Wszelkie polecenia tutaj przedstawione wykonywałem na Debianie 11, część poleceń sprawdzałem też na Ubuntu 22.04 (zwykłym, nie serwerowym)
 
