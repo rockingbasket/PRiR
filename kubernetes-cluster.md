@@ -495,13 +495,18 @@ W tym pobranym pliku trzeba zmienić adres IP w spec.calicoNetwork.ipPools.cidr 
 kubectl create -f custom-resources.yaml
 ```
 
-Możemy sprawdzić czy master node pracuje:
+Sprawdźmy teraz czy master node pracuje:
 
 ```shell
 kubectl get nodes -o wide
 ```
 
-Teraz możemy dołączyć kolejne node'y do klastra poleceniem, które wydrukowało nam się na końcu inicjacji klastra, albo, które wyświetliliśmy sobie jeszcze raz na masterze poleceniem:
+Jeśli nasz master ma status `Ready`, to sprawdźmy, czy wszystkie pody się uruchomiły - to dosyć ważne, gdyż pody, które są na masterze odpowiadają częściowo za zarządzanie niektórymi usługami w klastrze - dzięki nim w ogóle klaster działa poprawnie.
+```shell
+kubectl get pods --all-namespaces
+```
+
+Jeśli wszystkie pody mają status `Running` to możemy dołączyć kolejne node'y do klastra poleceniem, które wydrukowało nam się na końcu inicjacji klastra, albo które wyświetlimy sobie na masterze jeszcze raz poleceniem:
 
 ```shell
 kubeadm token create --print-join-command
@@ -513,7 +518,7 @@ To polecenie wygląda podobnie do poniższego:
 kubeadm join 192.168.100.25:6443 --token qbateg.5uffinrwny1ghn3r --discovery-token-ca-cert-hash sha256:4d1f5dc4e338ff4667190d35a770e0b6f85b931e8c9133695221d98f7bd421ad
 ```
 
-Należy pamiętać aby wykonać je jako root, czyli trzeba napisać `sudo` na początku. Trzeba także dopisać --cri-socket unix:///run/cri-dockerd.sock
+Należy pamiętać aby wykonać je **NIE NA MASTERZE, TYLKO NA POZOSTAŁYCH MASZYNACH XDDDDD** oraz jako root, czyli trzeba napisać `sudo` na początku. Trzeba także dopisać --cri-socket unix:///run/cri-dockerd.sock
 
 Polecenie wynikowe wygląda mniej więcej tak:
 
@@ -521,7 +526,7 @@ Polecenie wynikowe wygląda mniej więcej tak:
 sudo kubeadm join 192.168.100.25:6443 --token qbateg.5uffinrwny1ghn3r --discovery-token-ca-cert-hash sha256:4d1f5dc4e338ff4667190d35a770e0b6f85b931e8c9133695221d98f7bd421ad --cri-socket unix:///run/cri-dockerd.sock
 ```
 
-Jeśli uda się dołączyć node do klastra, to zobaczymy na ekranie taki wynik:
+Jeśli uda się dołączyć node'a do klastra, to zobaczymy na ekranie taki wynik:
 
 ![1685797384868](image/kubernetes-cluster/1685797384868.png)
 
@@ -530,11 +535,16 @@ I wówczas na masterze możemy sprawdzić, czy ten node jest widoczny:
 ```shell
 kubectl get nodes
 ```
+Przed dołączeniem kolejnych node'ów dobrze jest poczekać aż dodany przed momentem node będzie miał status `Ready`
 
 Jeśli polecenie kubectl get pods --all-namespaces zwróciło wam taki wynik:
 
 ![1685797729267](image/kubernetes-cluster/1685797729267.png)
 
-co oznacza, że nie wszystkie pody się uruchomiły, to prawdopodobnie brakuje na nodach zasobów: RAMu albo CPU. Trzeba w VirtualBoxie dać więcej zasobów, aby zadziałało.
+co oznacza, że nie wszystkie pody się uruchomiły, to prawdopodobnie ~~brakuje na nodach zasobów: RAMu albo CPU. Trzeba w VirtualBoxie dać więcej zasobów, aby zadziałało.~~ za bardzo się pospieszyliśmy i coś się nie zdążyło do końca skonfigurować.
 
-Po dołożeniu zasobów w VirtualBoxie pody coredns nadal się nie uruchomiły, przy instalacji helma i nextclouda zobaczymy, czy to ma znaczenie.
+Po dołożeniu zasobów w VirtualBoxie pody coredns nadal się nie uruchomiły, przy instalacji helma i nextclouda zobaczymy, czy to ma znaczenie. PS. Tak, miało, nie działało w sumie xD
+
+Wszystkie pody powinny mieć status `Running`, aby później zadziałała instalacja Nextcloud'a.
+
+Link do poradnika dot. instalacji Nextcloud'a: [nextcloud-google-cloud.md](nextcloud-google-cloud.md)
