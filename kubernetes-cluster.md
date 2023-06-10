@@ -489,7 +489,13 @@ kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.25.0
 curl https://raw.githubusercontent.com/projectcalico/calico/v3.25.0/manifests/custom-resources.yaml -O
 ```
 
-W tym pobranym pliku trzeba zmienić adres IP w spec.calicoNetwork.ipPools.cidr na ten, który daliśmy przy inicjacji klastra
+**Tym drugim poleceniem (curl) pobralośmy plik, w którym trzeba zmienić adres IP w spec.calicoNetwork.ipPools.cidr na ten, który daliśmy przy inicjacji klastra:**
+
+```shell
+nano custom-resources.yaml
+```
+
+Gdy już zmienimy w pliku ten parametr, możemy przystąpić do ostatecznego wdrażania sieci pod'ów:
 
 ```shell
 kubectl create -f custom-resources.yaml
