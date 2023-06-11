@@ -84,7 +84,13 @@ network:
 
 **Na litość Boską, nie róbcie kopiuj-wklej tego pliku!!! Macie inne nazwy interfejsów sieciowych i inne adresacje IP u siebie, jak tylko skopiujecie, może wam nie zadziałać!**
 
-Tam, gdzie jest addresses należy wpisać adres IP, który chcemy przydzielić maszynie, oraz po slashu maskę podsieci w postaci ilości bitów. Do tego możemy sprawdzić jaką mamy maskę poleceniem `ip a`. `gateway4` to brama domyślna - zazwyczaj adres naszego routera (pod warunkiem, że w VirtualBoxie ustawimy bridge).
+Tam, gdzie jest addresses należy wpisać adres IP, który chcemy przydzielić maszynie, oraz po slashu maskę podsieci w postaci ilości bitów. Do tego możemy sprawdzić jaką mamy maskę poleceniem `ip a`. `gateway4` to brama domyślna - zazwyczaj adres naszego routera (pod warunkiem, że w VirtualBoxie ustawimy bridge). JEŚLI MACIE BRIDGE W VIRTUALBOXIE TO ADRES BRAMY DOMYŚLNEJ MOŻECIE SPRAWDZIĆ NA WINDOWSIE POLECENIEM
+```shell
+ipconfig /all
+```
+Brama domyślna to będzie Default Gateway - zwróćcie uwagę na interfejs sieciowy, z którego odczytujecie wartość - to ma być karta, którą łączycie się z komputera z internetem czyli WiFi albo Ethernet - **NIE VIRTUALBOX HOST-ONLY**
+
+Jeśli źle ustawicie bramę - nie przejdziecie dalej, bo maszyna nie będzie miała dostępu do internetu!
 
 Nameservers to są adresy DNS, to możecie skopiować żywcem i powinno zadziałać.
 
@@ -272,31 +278,33 @@ Wynik tego polecenia powinien wyglądać tak:
 
 Do działania Kubernetesa na Dockerze musimy zainstalować Mirantis cri-dockerd.
 
-Najpierw sprawdzamy jaka jest najnowsza wersja i zapisujemy tą informację do zmiennej:
+9.06.2023 WYSZŁA NOWA WERSJA MIRANTIS CRI-DOCKERD, MY ZOSTAJEMY PRZY STAREJ, WIĘC NIE SPRAWDZAMY WERSJI, TYLKO NA SZTYWNO POBIERAMY WERSJĘ 0.3.2
+
+~~Najpierw sprawdzamy jaka jest najnowsza wersja i zapisujemy tą informację do zmiennej:~~
 
 ```shell
 VER=$(curl -s https://api.github.com/repos/Mirantis/cri-dockerd/releases/latest|grep tag_name | cut -d '"' -f 4|sed 's/v//g')
 ```
 
-A potem możemy wydrukować ten numer wersji: `echo $VER`
+~~A potem możemy wydrukować ten numer wersji: `echo $VER`~~
 
-I pobieramy tą wersję cri-dockerd
+~~I pobieramy tą wersję cri-dockerd~~
 
-```shell
-### For Intel 64-bit CPU ###
-wget https://github.com/Mirantis/cri-dockerd/releases/download/v${VER}/cri-dockerd-${VER}.amd64.tgz
-tar xvf cri-dockerd-${VER}.amd64.tgz
-
-### For ARM 64-bit CPU ###
-wget https://github.com/Mirantis/cri-dockerd/releases/download/v${VER}/cri-dockerd-${VER}.arm64.tgz
-tar xvf cri-dockerd-${VER}.arm64.tgz
-```
-
-Należy wybrać odpowiednie dwie linijki kodu w zależności od tego na jakim procesorze działa nasza maszyna: jeśli Intel lub AMD 64-bitowy, to dwie pierwsze linijki
+Należy wybrać odpowiednie dwie linijki poniższego kodu w zależności od tego na jakim procesorze działa nasza maszyna: jeśli Intel lub AMD 64-bitowy, to dwie pierwsze linijki
 
 Jeśli 64-bitowy procesor ARM (raczej nie :P ), to ostatnie dwie linijki.
 
 Te dwie linijki wykonujemy najlepiej osobno, najpierw pierwsza, potem druga.
+
+```shell
+### For Intel 64-bit CPU ###
+wget https://github.com/Mirantis/cri-dockerd/releases/download/v0.3.2/cri-dockerd-0.3.2.amd64.tgz
+tar xvf cri-dockerd-0.3.2.amd64.tgz
+
+### For ARM 64-bit CPU ###
+wget https://github.com/Mirantis/cri-dockerd/releases/download/v0.3.2/cri-dockerd-0.3.2.arm64.tgz
+tar xvf cri-dockerd-0.3.2.arm64.tgz
+```
 
 Następnie przenosimy paczkę cri-dockerd:
 
@@ -493,7 +501,7 @@ kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.25.0
 curl https://raw.githubusercontent.com/projectcalico/calico/v3.25.0/manifests/custom-resources.yaml -O
 ```
 
-**Tym drugim poleceniem (curl) pobralośmy plik, w którym trzeba zmienić adres IP w spec.calicoNetwork.ipPools.cidr na ten, który daliśmy przy inicjacji klastra:**
+**Tym drugim poleceniem (curl) pobraliśmy plik, w którym trzeba zmienić adres IP w spec.calicoNetwork.ipPools.cidr na ten, który daliśmy przy inicjacji klastra. IP podajemy razem z maską w formie bitowej po slashu, tak samo jak przy inicjacji klastra.**
 
 ```shell
 nano custom-resources.yaml
@@ -516,13 +524,15 @@ Jeśli nasz master ma status `Ready`, to sprawdźmy, czy wszystkie pody się uru
 kubectl get pods --all-namespaces
 ```
 
+Jeśli niektóre pody nie są `Running`, to trzeba trochę poczekać.
+
 Jeśli wszystkie pody mają status `Running` to możemy dołączyć kolejne node'y do klastra poleceniem, które wydrukowało nam się na końcu inicjacji klastra, albo które wyświetlimy sobie na masterze jeszcze raz poleceniem:
 
 ```shell
 kubeadm token create --print-join-command
 ```
 
-To polecenie wygląda podobnie do poniższego:
+To polecenie wygląda podobnie do poniższego **(tego nie kopiujcie, niżej jeszcze info odnośnie tego polecenia xD)**
 
 ```shell
 kubeadm join 192.168.100.25:6443 --token qbateg.5uffinrwny1ghn3r --discovery-token-ca-cert-hash sha256:4d1f5dc4e338ff4667190d35a770e0b6f85b931e8c9133695221d98f7bd421ad
@@ -545,7 +555,7 @@ I wówczas na masterze możemy sprawdzić, czy ten node jest widoczny:
 ```shell
 kubectl get nodes
 ```
-Przed dołączeniem kolejnych node'ów dobrze jest poczekać aż dodany przed momentem node będzie miał status `Ready`
+Przed dołączeniem kolejnych node'ów dobrze jest poczekać aż dodany przed momentem node będzie miał status `Ready` - chwilę to może potrwać, zależy to od wydajności maszyny, może to trwać około minutę przy w miarę wydajnych maszynach, na Google Cloud - chyba gdzieś tak pół minuty, na słabszych maszynach nawet kilka minut (nie polecam, bo przy czterech maszynach może procesor nie wyrobić, u mnie się cały laptop zawiesił "na ament" xD)
 
 Jeśli polecenie kubectl get pods --all-namespaces zwróciło wam taki wynik:
 
@@ -555,6 +565,6 @@ co oznacza, że nie wszystkie pody się uruchomiły, to prawdopodobnie ~~brakuje
 
 Po dołożeniu zasobów w VirtualBoxie pody coredns nadal się nie uruchomiły, przy instalacji helma i nextclouda zobaczymy, czy to ma znaczenie. PS. Tak, miało, nie działało w sumie xD
 
-Wszystkie pody powinny mieć status `Running`, aby później zadziałała instalacja Nextcloud'a.
+Wszystkie pody powinny mieć status `Running`, aby później zadziałała instalacja Nextcloud'a. Przy podach też trzeba poczekać aż się wszystkie uruchomią i też chwilę to trwa.
 
 Link do poradnika dot. instalacji Nextcloud'a: [nextcloud-google-cloud.md](nextcloud-google-cloud.md)
